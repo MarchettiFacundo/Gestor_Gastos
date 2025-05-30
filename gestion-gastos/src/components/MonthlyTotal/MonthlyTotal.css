@@ -1,0 +1,11 @@
+.monthly-total {
+  text-align: center;
+  font-size: 1.5rem;
+  margin: 20px 0;
+  font-family: 'Roboto', sans-serif;
+}
+.monthly-total p {
+  font-size: 2rem;
+  font-weight: bold;
+  margin: 0;
+}
