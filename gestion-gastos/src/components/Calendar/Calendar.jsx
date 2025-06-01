@@ -1,5 +1,5 @@
 // src/components/Calendar/Calendar.jsx
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState } from "react";
 import {
   startOfMonth,
   endOfMonth,
@@ -7,40 +7,44 @@ import {
   format,
   getDay,
   addMonths,
-  subMonths
-} from 'date-fns';
-import { collection, onSnapshot } from 'firebase/firestore';
-import { db } from '../../services/firebase';
-import './Calendar.css';
-import MonthlyTotal from '../MonthlyTotal/MonthlyTotal.jsx';
-import ExpensePieChart from '../ExpensePieChart/ExpensePieChart';
-
+  subMonths,
+} from "date-fns";
+import { collection, onSnapshot } from "firebase/firestore";
+import { db } from "../../services/firebase";
+import "./Calendar.css";
+import MonthlyTotal from "../MonthlyTotal/MonthlyTotal.jsx";
+import ExpensePieChart from "../ExpensePieChart/ExpensePieChart";
+import SelectedDayExpenses from "../SelectedDayExpenses/SelectedDayExpenses.jsx";
 
 const Calendar = () => {
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [expenses, setExpenses] = useState([]);
   const [tags, setTags] = useState({});
+  const [selectedDay, setSelectedDay] = useState(null);
 
   useEffect(() => {
     // Suscripción a gastos en tiempo real
-    const unsubscribeExpenses = onSnapshot(collection(db, 'expenses'), (snapshot) => {
-      const filteredExpenses = snapshot.docs
-        .map(doc => ({ id: doc.id, ...doc.data() }))
-        .filter(exp => {
-          const date = exp.date.toDate();
-          return (
-            date.getMonth() === currentMonth.getMonth() &&
-            date.getFullYear() === currentMonth.getFullYear()
-          );
-        });
+    const unsubscribeExpenses = onSnapshot(
+      collection(db, "expenses"),
+      (snapshot) => {
+        const filteredExpenses = snapshot.docs
+          .map((doc) => ({ id: doc.id, ...doc.data() }))
+          .filter((exp) => {
+            const date = exp.date.toDate();
+            return (
+              date.getMonth() === currentMonth.getMonth() &&
+              date.getFullYear() === currentMonth.getFullYear()
+            );
+          });
 
-      setExpenses(filteredExpenses);
-    });
+        setExpenses(filteredExpenses);
+      }
+    );
 
     // Suscripción a etiquetas en tiempo real
-    const unsubscribeTags = onSnapshot(collection(db, 'tags'), (snapshot) => {
+    const unsubscribeTags = onSnapshot(collection(db, "tags"), (snapshot) => {
       const tagsData = {};
-      snapshot.forEach(doc => {
+      snapshot.forEach((doc) => {
         tagsData[doc.id] = doc.data();
       });
       setTags(tagsData);
@@ -59,14 +63,14 @@ const Calendar = () => {
   });
 
   const getColorsForDay = (day) => {
-    const expensesOfDay = expenses.filter(exp => {
+    const expensesOfDay = expenses.filter((exp) => {
       const expDate = exp.date.toDate();
       return expDate.toDateString() === day.toDateString();
     });
 
-    const colors = expensesOfDay.map(exp => {
+    const colors = expensesOfDay.map((exp) => {
       const tag = tags[exp.tagIds?.[0]];
-      return tag?.color || '#ccc';
+      return tag?.color || "#ccc";
     });
 
     return [...new Set(colors)];
@@ -85,8 +89,12 @@ const Calendar = () => {
           const colors = getColorsForDay(day);
 
           return (
-            <div key={day.toISOString()} className="calendar-day">
-              <div className="day-number">{format(day, 'd')}</div>
+            <div
+              key={day.toISOString()}
+              className="calendar-day"
+              onClick={() => setSelectedDay(day)}
+            >
+              <div className="day-number">{format(day, "d")}</div>
               <div className="dots-container">
                 {colors.map((color, i) => (
                   <span
@@ -106,23 +114,30 @@ const Calendar = () => {
   const handlePrevMonth = () => setCurrentMonth(subMonths(currentMonth, 1));
   const handleNextMonth = () => setCurrentMonth(addMonths(currentMonth, 1));
 
- return (
-  <div className="calendar-container">
-    <div className="calendar-header">
-      <button onClick={handlePrevMonth}>◀</button>
-      <h2 className="calendar-title">{format(currentMonth, 'MMMM yyyy')}</h2>
-      <button onClick={handleNextMonth}>▶</button>
+  return (
+    <div className="calendar-container">
+      <div className="calendar-header">
+        <button onClick={handlePrevMonth}>◀</button>
+        <h2 className="calendar-title">{format(currentMonth, "MMMM yyyy")}</h2>
+        <button onClick={handleNextMonth}>▶</button>
+      </div>
+
+      {/* NUEVOS COMPONENTES */}
+      <MonthlyTotal expenses={expenses} />
+      <ExpensePieChart expenses={expenses} tags={tags} />
+
+      {/* CALENDARIO */}
+      {renderCalendar()}
+      {selectedDay && (
+        <SelectedDayExpenses
+          selectedDay={selectedDay}
+          expenses={expenses}
+          tags={tags}
+          onClose={() => setSelectedDay(null)}
+        />
+      )}
     </div>
-
-    {/* NUEVOS COMPONENTES */}
-    <MonthlyTotal expenses={expenses} />
-    <ExpensePieChart expenses={expenses} tags={tags} />
-
-    {/* CALENDARIO */}
-    {renderCalendar()}
-  </div>
-);
-
+  );
 };
 
 export default Calendar;

@@ -1,11 +1,10 @@
-.chart-container {
-  width: 100%;
-  max-width: 600px;
-  margin: 0 auto;
-  font-family: 'Roboto', sans-serif;
+.pie-chart-container {
+  text-align: center;
+  margin: 2rem 0;
 }
 
-.chart-container h2 {
-  text-align: center;
+.pie-chart-container h3 {
   margin-bottom: 1rem;
+  font-size: 1.25rem;
+  font-weight: 500;
 }

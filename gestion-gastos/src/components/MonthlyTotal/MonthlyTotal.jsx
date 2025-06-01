@@ -7,7 +7,6 @@ const MonthlyTotal = ({ expenses }) => {
 
   return (
     <div className="monthly-total">
-      <h2>Total del Mes</h2>
       <p>${total.toLocaleString()}</p>
     </div>
   );
