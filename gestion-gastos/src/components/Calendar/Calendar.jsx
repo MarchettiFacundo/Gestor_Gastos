@@ -15,6 +15,8 @@ import "./Calendar.css";
 import MonthlyTotal from "../MonthlyTotal/MonthlyTotal.jsx";
 import ExpensePieChart from "../ExpensePieChart/ExpensePieChart";
 import SelectedDayExpenses from "../SelectedDayExpenses/SelectedDayExpenses.jsx";
+import EditExpenseButton from "../Buttons/EditExpenseButton.jsx";
+
 
 const Calendar = () => {
   const [currentMonth, setCurrentMonth] = useState(new Date());
@@ -125,6 +127,8 @@ const Calendar = () => {
       {/* NUEVOS COMPONENTES */}
       <MonthlyTotal expenses={expenses} />
       <ExpensePieChart expenses={expenses} tags={tags} />
+      <EditExpenseButton currentMonthExpenses={expenses} tags={tags} />
+
 
       {/* CALENDARIO */}
       {renderCalendar()}
